@@ -12,6 +12,9 @@ Options:
 
 Modules:
 `systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
+
+Commands:
+  logs    Display the logs from journalctl
 "
 }
 
@@ -27,7 +30,8 @@ parse_args(){
 			-d|--daemon) DAEMON="true" ;;
 			-q|--quiet) QUIET="true" ;;
 			-v) set -x; VERBOSE="-v" ;;
-			*) MODULE_NAMES=`$MODULE_NAMES $1`;;
+			logs) journalctl -qu skwr_selfupdate -n all -f --no-hostname; exit 0;;
+			*) MODULE_NAMES="$MODULE_NAMES $1";;
 		esac
 		shift
 	done
@@ -80,6 +84,11 @@ check_image(){
 
 	# Restart service if a new image was generated
 	CONTAINER_ID=`docker ps -q -f name=^/$MODULE_NAME$`
+	if [[ -z "$CONTAINER_ID" ]]; then
+		echo "[$MODULE_NAME] Not running"
+		return
+	fi
+
 	CONTAINER_IMAGE_ID=`docker inspect $CONTAINER_ID | grep Image | grep sha256:  | cut -d: -f3`
 	if [[ "$IMAGE_ID" != "$CONTAINER_IMAGE_ID" ]]; then
 		SERVICE_NAME="skwr-$MODULE_NAME.service"

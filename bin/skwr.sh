@@ -26,14 +26,13 @@ init(){
 
 parse_args(){
   while [[ $# -gt 0 ]]; do
-    case $1 in
+    ARG=$1; shift;
+    case $ARG in
       -h|--help) usage; exit 0 ;;
       -v|--verbose) set -x; VERBOSE="-v" ;;
-      *) COMMAND=$SCRIPT_DIR/$1/run.sh; shift; break ;;
+      *) COMMAND="$SCRIPT_DIR/$ARG/run.sh $VERBOSE $*"; break ;;
     esac
-    shift
   done
-  COMMAND="$COMMAND $VERBOSE $*"
 }
 
 init
