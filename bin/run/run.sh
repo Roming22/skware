@@ -47,7 +47,11 @@ run(){
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
 	trap signal_handler INT
 	docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE &
-	sleep infinity
+	while [[ -z "$FAIL" ]]; do
+		sleep 15
+		docker inspect $MODULE_NAME >/dev/null || FAIL="true"
+	done
+	echo "[$MODULE_NAME] Stopped"
 }
 
 signal_handler(){
