@@ -5,6 +5,7 @@ usage(){
 	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
 	echo "
 Options:
+  -b,--background run the container in the background
   -h,--help       show this message
   -v,--verbose    increase verbose level
 
@@ -21,6 +22,7 @@ init(){
 parse_args(){
     while [[ "$#" -gt 0 ]]; do
         case $1 in
+			-b|--background) BACKGROUND="true";;
             -h|--help) usage; exit 0;;
             -v) set -x; VERBOSE="-v" ;;
             *) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1`;;
@@ -46,11 +48,16 @@ run(){
 	IMAGE="skwr/`basename $(cd $MODULE_DIR; pwd)`"
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
 	trap signal_handler INT
-	docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE &
-	while [[ -z "$FAIL" ]]; do
-		sleep 15
-		docker inspect $MODULE_NAME >/dev/null || FAIL="true"
-	done
+	CMD="docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE"
+	if [[ "$BACKGROUND" == "true" ]]; then
+		$CMD &
+		while [[ -z "$FAIL" ]]; do
+			sleep 15
+			docker ps | grep -q $MODULE_NAME || FAIL="true"
+		done
+	else
+		$CMD
+	fi
 	echo "[$MODULE_NAME] Stopped"
 }
 

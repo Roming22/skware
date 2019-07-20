@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-#Restart=always
+Restart=always
 TimeoutStartSec=0
 ExecStart=${BIN_DIR}/run/run.sh ${MODULE_DIR}
 ExecStop=${BIN_DIR}/stop/run.sh ${MODULE_DIR}
