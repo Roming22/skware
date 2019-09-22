@@ -48,7 +48,17 @@ run(){
 	IMAGE="skwr/`basename $(cd $MODULE_DIR; pwd)`"
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
 	trap signal_handler INT
-	CMD="docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE"
+	DOCKER_OPTIONS="$DOCKER_OPTIONS --env TZ=`ls -la /etc/localtime | sed 's:.*zoneinfo/::'` "
+	if [ "find $MODULE_DIR/etc -name \*.env | wc -l" != 0 ]; then
+		DOCKER_OPTIONS="$DOCKER_OPTIONS `find $MODULE_DIR/etc -name \*.env | sed "s:^ *:--env-file :" | tr '\n' ' '`"
+	fi
+	DOCKER_OPTIONS="$DOCKER_OPTIONS --hostname $MODULE_NAME "
+	DOCKER_OPTIONS="$DOCKER_OPTIONS --name $MODULE_NAME "
+	DOCKER_OPTIONS="$DOCKER_OPTIONS --network $DOCKER_NETWORK "
+	if [ -e "$MODULE_DIR/volumes/config" ]; then
+		DOCKER_OPTIONS="$DOCKER_OPTIONS `cat "$MODULE_DIR/volumes/config" | sed "s:^ *:--volume $MODULE_DIR/volumes/:" | tr '\n' ' '`"
+	fi
+	CMD="docker run --rm $DOCKER_OPTIONS $IMAGE"
 	if [[ "$BACKGROUND" == "true" ]]; then
 		$CMD &
 		while [[ -z "$FAIL" ]]; do
