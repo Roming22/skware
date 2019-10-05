@@ -36,12 +36,7 @@ parse_args(){
 
 run(){
 	echo "[$MODULE_NAME] Building"
-	ARCHITECTURE=`lscpu | head -1 | awk '{print $2}'`
-	case $ARCHITECTURE in
-		armv7*) ARCHITECTURE="armv7" ;;
-	esac
-
-	docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile.$ARCHITECTURE $MODULE_DIR/docker || exit 1
+	docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile $MODULE_DIR/docker || exit 1
 
 	if [[ `docker images -q $TAG:latest` != `docker images -q $TAG:build` ]]; then
 		docker tag $TAG:build $TAG:`date +%Y.%m%d.%H%M`
