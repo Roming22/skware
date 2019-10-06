@@ -30,13 +30,13 @@ parse_args(){
 
 	[[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
 	MODULE_NAME=`basename $MODULE_DIR`
-	DOCKER_DIR="$MODULE_DIR/docker"
+	DOCKER_DIR="$MODULE_DIR/image"
 	TAG="skwr/`basename $(cd $MODULE_DIR; pwd)`"
 }
 
 run(){
 	echo "[$MODULE_NAME] Building"
-	docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile $MODULE_DIR/docker || exit 1
+	docker build --rm --pull --tag $TAG:build -f $DOCKER_DIR/Dockerfile $DOCKER_DIR || exit 1
 
 	if [[ `docker images -q $TAG:latest` != `docker images -q $TAG:build` ]]; then
 		docker tag $TAG:build $TAG:`date +%Y.%m%d.%H%M`

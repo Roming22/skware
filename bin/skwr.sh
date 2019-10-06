@@ -15,7 +15,7 @@ Commands:
 init(){
   SCRIPT_DIR=`cd $(dirname $(readlink -f $0)); pwd`
   MODULE_DIR="$PWD"
-  while [[ ! -e "$MODULE_DIR/docker" && ! -e "$MODULE_DIR/etc" ]]; do
+  while [[ ! -e "$MODULE_DIR/image" && ! -e "$MODULE_DIR/etc" ]]; do
     MODULE_DIR=`cd $MODULE_DIR/..; pwd`
     if [[ "$MODULE_DIR" = "/" ]]; then
       unset MODULE_DIR

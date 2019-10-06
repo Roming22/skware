@@ -56,7 +56,7 @@ run(){
 	DOCKER_OPTIONS="$DOCKER_OPTIONS --name $MODULE_NAME "
 	DOCKER_OPTIONS="$DOCKER_OPTIONS --network $DOCKER_NETWORK "
 	if [ -e "$MODULE_DIR/volumes/config" ]; then
-		DOCKER_OPTIONS="$DOCKER_OPTIONS `cat "$MODULE_DIR/volumes/config" | sed "s:^ *:--volume $MODULE_DIR/volumes/:" | tr '\n' ' '`"
+		DOCKER_OPTIONS="$DOCKER_OPTIONS `grep ":" "$MODULE_DIR/volumes/config" | egrep -v "^ *#" | sed "s:^ *:--volume $MODULE_DIR/volumes/:" | tr '\n' ' '`"
 	fi
 	CMD="docker run --rm $DOCKER_OPTIONS $IMAGE"
 	if [[ "$BACKGROUND" == "true" ]]; then
