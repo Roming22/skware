@@ -9,7 +9,7 @@ Options:
   -v,--verbose    increase verbose level
 
 Modules:
-`docker ps --format "{{.Names}}@{{.Image}}" | grep "@skwr/" | cut -d@ -f1 | sort | sed 's:^:  :'`
+`(docker ps --format "{{.Names}}@{{.Image}}" | grep "@skwr/" | cut -d@ -f1; systemctl | grep skwr_ | sed 's:.*skwr_\([^.]*\).*:\1:') | sort -u | sed 's:^:  :'`
 "
 }
 
@@ -21,9 +21,10 @@ init(){
 parse_args(){
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            -h|--help) usage; exit 0;;
+            -h|--help) usage; exit 0 ;;
             -v) set -x; VERBOSE="-v" ;;
-            *) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1`;;
+            selfupdate) MODULE_DIR="$1" ;;
+            *) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1` ;;
         esac
         shift
     done
@@ -38,8 +39,10 @@ run(){
 	echo "##################################################"
 	echo "[$MODULE_NAME] Streaming logs"
 
-	# Make sure to start the containers on a segregated network
-	docker logs -tf $MODULE_NAME
+	case $MODULE_NAME in
+		selfupdate) journalctl -fu skwr_${MODULE_NAME}.service ;;
+		*) docker logs -tf $MODULE_NAME ;;
+	esac
 }
 
 init

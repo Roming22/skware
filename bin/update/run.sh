@@ -11,7 +11,7 @@ Options:
   -v,--verbose    increase verbose level
 
 Modules:
-`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
+`systemctl | egrep "^ *skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
 
 Commands:
   logs    Display the logs from journalctl
@@ -36,7 +36,7 @@ parse_args(){
 		shift
 	done
 
-	[[ -z "$MODULE_NAMES" ]] && MODULE_NAMES=`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
+	[[ -z "$MODULE_NAMES" ]] && MODULE_NAMES=`systemctl | egrep "^ *skwr-" | sed 's:^ *skwr-\(.*\).service .*:\1:'`
 	[[ -z "$MODULE_NAMES" ]] && echo "No module to process" && exit 1
 	MODULE_NAMES=("$MODULE_NAMES")
 }
