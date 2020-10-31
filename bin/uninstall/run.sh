@@ -8,7 +8,7 @@ Options:
   -v,--verbose    increase verbose level
 
 Modules:
-`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
+`systemctl | egrep "^ *skwr-" | sed 's:^ *skwr-\(.*\).service .*:\1:'`
 "
 }
 
